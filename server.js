@@ -5,7 +5,7 @@ const path = require('path');
 const bcrypt = require('bcrypt');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
-const { connectToDB } = require('../shared/database');
+const { connectToDB } = require('database');
 const { ObjectId } = require('mongodb');
 
 const app = express();
@@ -365,4 +365,5 @@ process.on('SIGINT', async () => {
   const { closeDB } = require('../shared/database');
   await closeDB();
   process.exit();
+
 });
