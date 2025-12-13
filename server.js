@@ -36,7 +36,7 @@ app.use(session({
 }));
 
 // Static files
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, './')));
 
 // User auth middleware
 function requireUserAuth(req, res, next) {
@@ -366,5 +366,6 @@ process.on('SIGINT', async () => {
   await closeDB();
   process.exit();
 });
+
 
 
