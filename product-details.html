@@ -18,7 +18,49 @@
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       line-height: 1.6;
       color: #333;
-      background-color: #f9f9f9;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #f9f9f9;
+      z-index: -2;
+    }
+
+    /* Industrial Background Styles */
+    .industrial-background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+      background: #f5f7fa;
+    }
+
+    .pipe {
+      position: absolute;
+      background: rgba(58, 123, 213, 0.1);
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(58, 123, 213, 0.1);
+    }
+
+    .pipe-connector {
+      position: absolute;
+      background: rgba(58, 123, 213, 0.15);
+      border-radius: 50%;
+    }
+
+    .particle {
+      position: absolute;
+      background: rgba(58, 123, 213, 0.2);
+      border-radius: 50%;
     }
     
     nav {
@@ -329,8 +371,7 @@
     
     @media (max-width: 768px) {
       nav {
-        flex-direction: column;
-        padding: 15px;
+       display: none;
       }
       
       nav ul {
@@ -361,7 +402,14 @@
     }
   </style>
 </head>
+
 <body>
+  <!-- Industrial Background -->
+  <div class="industrial-background">
+    <div class="pipes-container"></div>
+    <div class="particles-container"></div>
+  </div>
+
   <nav>
     <a href="index.html">
       <img src="./Create_a_logo_concep-removebg-preview.png" alt="Damodar Traders Logo">
@@ -664,7 +712,114 @@
       // Load product details
       loadProductDetails();
     });
+
+    // Industrial Pipe Background Animation (same as index.html)
+    function createIndustrialBackground() {
+      const pipesContainer = document.querySelector('.pipes-container');
+      const particlesContainer = document.querySelector('.particles-container');
+      const colors = ['rgba(58, 123, 213, 0.1)', 'rgba(65, 131, 215, 0.15)', 'rgba(72, 139, 217, 0.2)'];
+      
+      // Create horizontal pipes
+      for (let i = 0; i < 8; i++) {
+        const pipe = document.createElement('div');
+        pipe.className = 'pipe';
+        pipesContainer.appendChild(pipe);
+        
+        const isVertical = Math.random() > 0.5;
+        const duration = gsap.utils.random(30, 50);
+        const size = gsap.utils.random(10, 30);
+        const length = gsap.utils.random(200, 400);
+        
+        gsap.set(pipe, {
+          width: isVertical ? `${size}px` : `${length}px`,
+          height: isVertical ? `${length}px` : `${size}px`,
+          background: colors[Math.floor(Math.random() * colors.length)],
+          x: isVertical ? gsap.utils.random(0, window.innerWidth) : -length,
+          y: isVertical ? -length : gsap.utils.random(0, window.innerHeight)
+        });
+        
+        gsap.to(pipe, {
+          x: isVertical ? gsap.utils.random(0, window.innerWidth) : window.innerWidth + length,
+          y: isVertical ? window.innerHeight + length : gsap.utils.random(0, window.innerHeight),
+          duration: duration,
+          ease: "none",
+          repeat: -1
+        });
+      }
+      
+      // Create pipe connectors
+      for (let i = 0; i < 15; i++) {
+        const connector = document.createElement('div');
+        connector.className = 'pipe-connector';
+        pipesContainer.appendChild(connector);
+        
+        const size = gsap.utils.random(15, 40);
+        
+        gsap.set(connector, {
+          width: `${size}px`,
+          height: `${size}px`,
+          x: gsap.utils.random(0, window.innerWidth),
+          y: gsap.utils.random(0, window.innerHeight),
+          opacity: 0
+        });
+        
+        gsap.to(connector, {
+          opacity: 0.3,
+          duration: gsap.utils.random(3, 6),
+          yoyo: true,
+          repeat: -1,
+          delay: gsap.utils.random(0, 5)
+        });
+      }
+      
+      // Create floating particles (weld sparks)
+      for (let i = 0; i < 20; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particlesContainer.appendChild(particle);
+        
+        const size = gsap.utils.random(2, 6);
+        
+        gsap.set(particle, {
+          width: `${size}px`,
+          height: `${size}px`,
+          x: gsap.utils.random(0, window.innerWidth),
+          y: gsap.utils.random(0, window.innerHeight),
+          opacity: 0
+        });
+        
+        // Spark animation
+        const tl = gsap.timeline({ repeat: -1, delay: gsap.utils.random(0, 5) });
+        tl.to(particle, {
+          opacity: 0.8,
+          duration: 0.3,
+          ease: "power1.out"
+        })
+        .to(particle, {
+          x: "+=50",
+          y: "+=50",
+          duration: 0.8,
+          ease: "power1.inOut"
+        })
+        .to(particle, {
+          opacity: 0,
+          duration: 0.3,
+          ease: "power1.in"
+        });
+      }
+    }
+
+    // Initialize when DOM is loaded
+    document.addEventListener("DOMContentLoaded", () => {
+      createIndustrialBackground();
+      
+      // Make background responsive to window resize
+      window.addEventListener('resize', () => {
+        document.querySelector('.pipes-container').innerHTML = '';
+        document.querySelector('.particles-container').innerHTML = '';
+        createIndustrialBackground();
+      });
+    });
   </script>
 </body>
-
 </html>
