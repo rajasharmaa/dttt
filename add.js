@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
   const mediaContainer = document.getElementById('mediaContainer');
-  const API_BASE_URL = 'http://localhost:3000/api,https://dttt-5.onrender.com/';
+  const API_BASE_URL = 'https://dttt-5.onrender.com/api';
   const defaultImage = "assets/Screenshot_2025-06-19_201249-removebg-preview.png";
   
   // Local storage fallback data
@@ -152,5 +152,6 @@ document.addEventListener('DOMContentLoaded', function() {
   // Load products when page loads
   loadProducts();
 });
+
 
 
