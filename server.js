@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 3000;
 
 // CORS configuration
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://127.0.0.1:5500', 'http://localhost:3001','https://dttt-5.onrender.com/'],
+  origin: ['http://localhost:3000', 'http://127.0.0.1:5500', 'http://localhost:3001','https://dttt-5.onrender.com'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
@@ -366,4 +366,5 @@ process.on('SIGINT', async () => {
   await closeDB();
   process.exit();
 });
+
 
