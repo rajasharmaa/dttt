@@ -58,24 +58,33 @@ document.addEventListener('DOMContentLoaded', function() {
       const mediaDiv = document.createElement('div');
       mediaDiv.classList.add('media', `media${index + 1}`);
       
-      // Add hover effects
-      mediaDiv.style.transition = 'transform 0.3s, box-shadow 0.3s';
-      mediaDiv.style.cursor = 'pointer';
-      mediaDiv.addEventListener('mouseenter', () => {
-        mediaDiv.style.transform = 'translateY(-5px)';
-        mediaDiv.style.boxShadow = '0 10px 20px rgba(0,0,0,0.1)';
-      });
-      mediaDiv.addEventListener('mouseleave', () => {
-        mediaDiv.style.transform = 'translateY(0)';
-        mediaDiv.style.boxShadow = 'none';
-      });
+      // Add hover effects for desktop only
+      if (window.innerWidth > 768) {
+        mediaDiv.style.transition = 'transform 0.3s, box-shadow 0.3s';
+        mediaDiv.style.cursor = 'pointer';
+        mediaDiv.addEventListener('mouseenter', () => {
+          mediaDiv.style.transform = 'translateY(-5px)';
+          mediaDiv.style.boxShadow = '0 10px 20px rgba(0,0,0,0.1)';
+        });
+        mediaDiv.addEventListener('mouseleave', () => {
+          mediaDiv.style.transform = 'translateY(0)';
+          mediaDiv.style.boxShadow = 'none';
+        });
+      } else {
+        // Touch-friendly scaling for mobile
+        mediaDiv.style.transition = 'transform 0.2s';
+        mediaDiv.addEventListener('touchstart', () => {
+          mediaDiv.style.transform = 'scale(0.98)';
+        });
+        mediaDiv.addEventListener('touchend', () => {
+          mediaDiv.style.transform = 'scale(1)';
+        });
+      }
 
       const img = document.createElement('img');
       img.src = product.image || product.imagePath || product || defaultImage;
       img.alt = product.name || `Product ${index + 1}`;
       img.loading = "lazy";
-      
-    
       
       mediaDiv.appendChild(img);
       
@@ -85,73 +94,97 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function initAnimations() {
-    // ScrollTrigger animation for when mediaContainer enters viewport
-    ScrollTrigger.create({
-      trigger: "#mediaContainer",
-      start: "top bottom",
-      onEnter: () => {
-        gsap.from(".media", {
-          y: 10,
-          opacity: 0,
-          duration: 0.2,
-          stagger: 0.2,
-          ease: "back.out(1.7)"
-        });
-      }
-    });
-
-    // Mouse movement inertia effect for media elements
-    let oldX = 0, 
-        oldY = 0, 
-        deltaX = 0,
-        deltaY = 0;
-    
-    document.querySelectorAll('.media').forEach(el => {
-      el.addEventListener('mouseenter', () => {
-        const tl = gsap.timeline({ 
-          onComplete: () => {
-            tl.kill();
-          }
-        });
-        tl.timeScale(1.2);
-        
-        const image = el.querySelector('img');
-        tl.to(image, {
-          inertia: {
-            x: {
-              velocity: deltaX * 30,
-              end: 0
-            },
-            y: {
-              velocity: deltaY * 30,
-              end: 0
-            },
-          },
-        });
-        tl.fromTo(image, {
-          rotate: 0
-        }, {
-          duration: 0.4,
-          rotate: (Math.random() - 0.5) * 30,
-          yoyo: true, 
-          repeat: 1,
-          ease: 'power1.inOut'
-        }, '<');
+    // Only run GSAP animations on desktop
+    if (window.innerWidth > 768) {
+      // ScrollTrigger animation for when mediaContainer enters viewport
+      ScrollTrigger.create({
+        trigger: "#mediaContainer",
+        start: "top bottom",
+        onEnter: () => {
+          gsap.from(".media", {
+            y: 10,
+            opacity: 0,
+            duration: 0.2,
+            stagger: 0.2,
+            ease: "back.out(1.7)"
+          });
+        }
       });
-    });
 
-    // Track mouse movement for inertia effect
-    document.addEventListener("mousemove", (e) => {
-      deltaX = e.clientX - oldX;
-      deltaY = e.clientY - oldY;
-      oldX = e.clientX;
-      oldY = e.clientY;
-    });
+      // Mouse movement inertia effect for media elements
+      let oldX = 0, 
+          oldY = 0, 
+          deltaX = 0,
+          deltaY = 0;
+      
+      document.querySelectorAll('.media').forEach(el => {
+        el.addEventListener('mouseenter', () => {
+          const tl = gsap.timeline({ 
+            onComplete: () => {
+              tl.kill();
+            }
+          });
+          tl.timeScale(1.2);
+          
+          const image = el.querySelector('img');
+          tl.to(image, {
+            inertia: {
+              x: {
+                velocity: deltaX * 30,
+                end: 0
+              },
+              y: {
+                velocity: deltaY * 30,
+                end: 0
+              },
+            },
+          });
+          tl.fromTo(image, {
+            rotate: 0
+          }, {
+            duration: 0.4,
+            rotate: (Math.random() - 0.5) * 30,
+            yoyo: true, 
+            repeat: 1,
+            ease: 'power1.inOut'
+          }, '<');
+        });
+      });
+
+      // Track mouse movement for inertia effect
+      document.addEventListener("mousemove", (e) => {
+        deltaX = e.clientX - oldX;
+        deltaY = e.clientY - oldY;
+        oldX = e.clientX;
+        oldY = e.clientY;
+      });
+    } else {
+      // Mobile-friendly simple animation
+      const mediaElements = document.querySelectorAll('.media');
+      mediaElements.forEach((el, index) => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+          el.style.transition = 'opacity 0.5s, transform 0.5s';
+          el.style.opacity = '1';
+          el.style.transform = 'translateY(0)';
+        }, index * 100);
+      });
+    }
   }
 
   // Load products when page loads
   loadProducts();
+
+  // Handle window resize for responsive animations
+  window.addEventListener('resize', () => {
+    // Re-initialize animations if needed
+    if (window.innerWidth <= 768) {
+      // Mobile layout adjustments
+      document.querySelectorAll('.media').forEach(el => {
+        el.style.transform = '';
+        el.style.boxShadow = '';
+      });
+    }
+  });
 });
-
-
-
