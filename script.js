@@ -28,28 +28,35 @@ function loadinganimation() {
 document.addEventListener("DOMContentLoaded", () => {
   loadinganimation();
   
-  // Only create heavy background animation on desktop
-  if (window.innerWidth > 768) {
-    createIndustrialBackground();
-  }
+  // Create background animation for all devices (optimized for mobile)
+  createIndustrialBackground();
 });
 
-// Industrial Pipe Background Animation
+// Industrial Pipe Background Animation - Optimized for both desktop and mobile
 function createIndustrialBackground() {
   const pipesContainer = document.querySelector('.pipes-container');
   const particlesContainer = document.querySelector('.particles-container');
-  const colors = ['rgba(58, 123, 213, 0.1)', 'rgba(65, 131, 215, 0.15)', 'rgba(72, 139, 217, 0.2)'];
   
-  // Create pipes
-  for (let i = 0; i < 6; i++) {
+  if (!pipesContainer || !particlesContainer) return;
+  
+  // Clear existing elements
+  pipesContainer.innerHTML = '';
+  particlesContainer.innerHTML = '';
+  
+  const colors = ['rgba(58, 123, 213, 0.1)', 'rgba(65, 131, 215, 0.15)', 'rgba(72, 139, 217, 0.2)'];
+  const isMobile = window.innerWidth <= 768;
+  
+  // Create pipes - fewer and smaller on mobile
+  const pipeCount = isMobile ? 3 : 6;
+  for (let i = 0; i < pipeCount; i++) {
     const pipe = document.createElement('div');
     pipe.className = 'pipe';
     pipesContainer.appendChild(pipe);
     
     const isVertical = Math.random() > 0.5;
-    const duration = gsap.utils.random(40, 60);
-    const size = gsap.utils.random(8, 20);
-    const length = gsap.utils.random(150, 300);
+    const duration = isMobile ? gsap.utils.random(60, 80) : gsap.utils.random(40, 60);
+    const size = isMobile ? gsap.utils.random(4, 12) : gsap.utils.random(8, 20);
+    const length = isMobile ? gsap.utils.random(100, 200) : gsap.utils.random(150, 300);
     
     gsap.set(pipe, {
       width: isVertical ? `${size}px` : `${length}px`,
@@ -68,13 +75,14 @@ function createIndustrialBackground() {
     });
   }
   
-  // Create pipe connectors
-  for (let i = 0; i < 10; i++) {
+  // Create pipe connectors - fewer on mobile
+  const connectorCount = isMobile ? 6 : 10;
+  for (let i = 0; i < connectorCount; i++) {
     const connector = document.createElement('div');
     connector.className = 'pipe-connector';
     pipesContainer.appendChild(connector);
     
-    const size = gsap.utils.random(12, 30);
+    const size = isMobile ? gsap.utils.random(8, 20) : gsap.utils.random(12, 30);
     
     gsap.set(connector, {
       width: `${size}px`,
@@ -85,22 +93,22 @@ function createIndustrialBackground() {
     });
     
     gsap.to(connector, {
-      opacity: 0.2,
-      duration: gsap.utils.random(4, 8),
+      opacity: isMobile ? 0.15 : 0.2,
+      duration: gsap.utils.random(5, 10),
       yoyo: true,
       repeat: -1,
-      delay: gsap.utils.random(0, 3)
+      delay: gsap.utils.random(0, 4)
     });
   }
   
-  // Create floating particles (weld sparks) - fewer on mobile
-  const particleCount = window.innerWidth > 768 ? 15 : 8;
+  // Create floating particles (weld sparks) - fewer and slower on mobile
+  const particleCount = isMobile ? 5 : 15;
   for (let i = 0; i < particleCount; i++) {
     const particle = document.createElement('div');
     particle.className = 'particle';
     particlesContainer.appendChild(particle);
     
-    const size = gsap.utils.random(2, 4);
+    const size = isMobile ? gsap.utils.random(1, 3) : gsap.utils.random(2, 4);
     
     gsap.set(particle, {
       width: `${size}px`,
@@ -110,22 +118,27 @@ function createIndustrialBackground() {
       opacity: 0
     });
     
-    // Spark animation
-    const tl = gsap.timeline({ repeat: -1, delay: gsap.utils.random(0, 5) });
+    // Spark animation - slower on mobile
+    const moveDistance = isMobile ? 30 : 40;
+    const tl = gsap.timeline({ 
+      repeat: -1, 
+      delay: gsap.utils.random(0, 8) 
+    });
+    
     tl.to(particle, {
-      opacity: 0.6,
-      duration: 0.4,
+      opacity: isMobile ? 0.4 : 0.6,
+      duration: 0.5,
       ease: "power1.out"
     })
     .to(particle, {
-      x: "+=40",
-      y: "+=40",
-      duration: 1.2,
+      x: `+=${moveDistance}`,
+      y: `+=${moveDistance}`,
+      duration: isMobile ? 1.5 : 1.2,
       ease: "power1.inOut"
     })
     .to(particle, {
       opacity: 0,
-      duration: 0.4,
+      duration: 0.5,
       ease: "power1.in"
     });
   }
@@ -136,17 +149,7 @@ let resizeTimeout;
 window.addEventListener('resize', () => {
   clearTimeout(resizeTimeout);
   resizeTimeout = setTimeout(() => {
-    const pipesContainer = document.querySelector('.pipes-container');
-    const particlesContainer = document.querySelector('.particles-container');
-    
-    if (pipesContainer && particlesContainer) {
-      pipesContainer.innerHTML = '';
-      particlesContainer.innerHTML = '';
-      
-      // Only recreate on desktop
-      if (window.innerWidth > 768) {
-        createIndustrialBackground();
-      }
-    }
-  }, 250);
+    // Recreate background on resize (optimized for current device)
+    createIndustrialBackground();
+  }, 300);
 });
